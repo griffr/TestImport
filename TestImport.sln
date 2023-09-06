@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestImport", "TestImport\TestImport.csproj", "{24130736-7EDC-4F39-9C58-C4F72C17A913}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24130736-7EDC-4F39-9C58-C4F72C17A913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24130736-7EDC-4F39-9C58-C4F72C17A913}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24130736-7EDC-4F39-9C58-C4F72C17A913}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24130736-7EDC-4F39-9C58-C4F72C17A913}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9328982A-52F3-4D30-9AAF-5DA4B2B57E7C}
+	EndGlobalSection
+EndGlobal
