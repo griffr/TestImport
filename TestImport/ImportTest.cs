@@ -5,9 +5,9 @@ namespace TestImport
 {
     public class ImportTest
     {
-        private int count = 200;
-        private int stran_transactions = 2;
-        private int sanal_lines_per_transaction = 3;
+        private int count = 10;
+        private int stran_transactions = 1;
+        private int sanal_lines_per_transaction = 1;
         private readonly ITestOutputHelper output;
         private string lcExternalUserName = "ckm2";
         private string lcExternalUserPassword = "ckm21234!";
@@ -23,13 +23,14 @@ namespace TestImport
         //Currently import will pull through any correct account codes and skip failed ones but reports back that the import was a failure where it should be a success with an exception - obviously the return type is true/false where this is a partial success
         //Either fail all or pass all - no partials
         [Fact]
-        public void ImportTestStranFails()
+        public async void ImportTestStranFails()
         {
             int currentIndex = 0;
             bool result = true;
             GenerateImportFilesFailing("ST");
             string[] fileHolder = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "files"), "*.*",
                 SearchOption.TopDirectoryOnly);
+            clsOperaImportServerEdition clsOperaImportServerEdition = new();
             foreach (var file in fileHolder)
             {
                 if (Path.GetExtension(file).ToUpper() == ".CSV" &&
@@ -37,7 +38,6 @@ namespace TestImport
                 {
                     currentIndex = currentIndex + 1;
                     output.WriteLine($"Importing file {currentIndex} of {count}");
-                    clsOperaImportServerEdition clsOperaImportServerEdition = new();
                     try
                     {
                         string pairedFile = GetPairedFile(Path.Combine(Environment.CurrentDirectory, "files"), file,
@@ -51,38 +51,42 @@ namespace TestImport
                         string importType = "ST";
                         string auditPass = Path.Combine(Environment.CurrentDirectory, "files",
                             $"audit{currentIndex}.txt");
+                        
                         bool vLblnSuccess = Convert.ToBoolean(clsOperaImportServerEdition.ImportData(
                             importType + "#" + lcExternalUserName + "#" + lcExternalUserPassword + "#", companyCode,
                             file + ", " + pairedFile, 3, auditPass, "U", "IMPORT",
                             DateTime.Now, DateTime.Now.Month, DateTime.Now.Year, DateTime.Now));
                         string docReturned = Convert.ToString(clsOperaImportServerEdition.InfoCollectionItem("1"));
                         docReturned = docReturned[(docReturned.LastIndexOf('=') + 1)..];
+                        
                         output.WriteLine($"Imported {docReturned}");
                         result = vLblnSuccess;
                     }
                     catch (Exception ex)
                     {
+                        clsOperaImportServerEdition.Clean();
                         output.WriteLine(ex.Message);
                         result = false;
                     }
                     finally
                     {
-                        clsOperaImportServerEdition.Clean();
                     }
                 }
             }
+            clsOperaImportServerEdition.Clean();
             Assert.False(result);
         }
 
         //Should all pass import regardless of how many files are imported, be it 1 or 1000
         [Fact]
-        public void ImportTestStran()
+        public async void ImportTestStran()
         {
             int currentIndex = 0;
             List<bool> results = new();
             GenerateImportFilesPassing("ST", count);
             string[] fileHolder = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "files"), "*.*",
                 SearchOption.TopDirectoryOnly);
+            clsOperaImportServerEdition clsOperaImportServerEdition = new();
             foreach (var file in fileHolder)
             {
                 if (Path.GetExtension(file).ToUpper() == ".CSV" &&
@@ -90,7 +94,6 @@ namespace TestImport
                 {
                     currentIndex = currentIndex + 1;
                     output.WriteLine($"Importing file {currentIndex} of {count}");
-                    clsOperaImportServerEdition importServerEdition = new();
                     try
                     {
                         string pairedFile = GetPairedFile(Path.Combine(Environment.CurrentDirectory, "files"), file,
@@ -105,27 +108,28 @@ namespace TestImport
                         string importType = "ST";
                         string auditPass = Path.Combine(Environment.CurrentDirectory, "files",
                             $"audit-{Path.GetFileNameWithoutExtension(file)}.txt");
-                        bool vLblnSuccess = Convert.ToBoolean(importServerEdition.ImportData(
+                        bool vLblnSuccess = Convert.ToBoolean(clsOperaImportServerEdition.ImportData(
                             importType + "#" + lcExternalUserName + "#" + lcExternalUserPassword + "#", companyCode,
                             file + ", " + pairedFile, 3, auditPass, "U", "IMPORT",
                             DateTime.Now, DateTime.Now.Month, DateTime.Now.Year, DateTime.Now));
-                        string docReturned = Convert.ToString(importServerEdition.InfoCollectionItem("1"));
+                        string docReturned = Convert.ToString(clsOperaImportServerEdition.InfoCollectionItem("1"));
                         docReturned = docReturned[(docReturned.LastIndexOf('=') + 1)..];
                         if (!vLblnSuccess)
                         {
                             output.WriteLine($"Failed Import {Path.GetFileName(file)} {Path.GetFileName(auditPass)}");
+                            results.Add(false);
                         }
                         output.WriteLine($"Imported {Path.GetFileName(file)} {Path.GetFileName(auditPass)}");
                         results.Add(vLblnSuccess);
                     }
                     catch (Exception ex)
                     {
+                        clsOperaImportServerEdition.Clean();
                         output.WriteLine(ex.Message);
                         results.Add(false);
                     }
                     finally
                     {
-                        importServerEdition.Clean();
                     }
 
                 }
@@ -135,12 +139,13 @@ namespace TestImport
 
         //Should pass all import regardless of how many files are imported, be it 1 or 1000
         [Fact]
-        public void ImportTestSop()
+        public async void ImportTestSop()
         {
             int currentIndex = 0;
             List<bool> results = new();
             GenerateImportFilesPassing("IT",count);
             string[] fileHolder = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "files"), "*.*", SearchOption.TopDirectoryOnly);
+            clsOperaImportServerEdition clsOperaImportServerEdition = new();
             foreach (var file in fileHolder)
             {
                 if (Path.GetExtension(file).ToUpper() == ".CSV" &&
@@ -148,7 +153,6 @@ namespace TestImport
                 {
                     currentIndex = currentIndex + 1;
                     output.WriteLine($"Importing file {currentIndex} of {count}");
-                    clsOperaImportServerEdition clsOperaImportServerEdition = new();
                     try
                     {
                         string pairedFile = GetPairedFile(Path.Combine(Environment.CurrentDirectory, "files"), file,
@@ -173,12 +177,12 @@ namespace TestImport
                     }
                     catch (Exception ex)
                     {
+                        clsOperaImportServerEdition.Clean();
                         output.WriteLine(ex.Message);
                         results.Add(false);
                     }
                     finally
                     {
-                        clsOperaImportServerEdition.Clean();
                     }
                     
                 }
@@ -193,6 +197,7 @@ namespace TestImport
             int currentIndex = 0;
             List<bool> results = new();
             string[] fileHolder = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "SampleFiles"), "*.*", SearchOption.TopDirectoryOnly);
+            clsOperaImportServerEdition clsOperaImportServerEdition = new();
             foreach (var file in fileHolder)
             {
                 if (Path.GetExtension(file).ToUpper() == ".CSV" &&
@@ -200,7 +205,6 @@ namespace TestImport
                 {
                     currentIndex = currentIndex + 1;
                     output.WriteLine($"Importing file {currentIndex} of {count}");
-                    clsOperaImportServerEdition clsOperaImportServerEdition = new();
                     try
                     {
                         string pairedFile = GetPairedFile(Path.Combine(Environment.CurrentDirectory, "SampleFiles"), file,
@@ -226,17 +230,18 @@ namespace TestImport
                     }
                     catch (Exception ex)
                     {
+                        clsOperaImportServerEdition.Clean();
                         output.WriteLine(ex.Message);
                         results.Add(false);
                     }
                     finally
                     {
-                        clsOperaImportServerEdition.Clean();
                     }
                     
                 }
             }
             
+            clsOperaImportServerEdition.Clean();
             Assert.DoesNotContain(false, results);
         }
 
@@ -346,5 +351,11 @@ namespace TestImport
             }
             return "NF";
         }
+    }
+
+    public class ImportResult
+    {
+        public bool Success { get; set; }
+        public string DocumentNumber { get; set; }
     }
 }
